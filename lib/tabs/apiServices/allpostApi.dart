@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/apiServices/connecttopost.dart';
@@ -25,8 +26,7 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
     try {
       final token = await JWTService.gettoken();
       final response = await http.get(
-        Uri.parse(
-            'https://devconnect-backend-2-0c3c.onrender.com/user/projects'),
+        Uri.parse('$apiurl/user/projects'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -38,8 +38,10 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
         final posts = result.map((e) => Post.fromJson(e)).toList();
         state = AsyncValue.data(posts);
       } else {
-        state =
-            AsyncValue.error('Failed to fetch projects', StackTrace.current);
+        state = AsyncValue.error(
+          'Failed to fetch projects',
+          StackTrace.current,
+        );
       }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -116,9 +118,7 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
             ..removeWhere((like) => like.user?.id == userId)
             ..add(newLike);
 
-          posts[index] = optimisticPost.copyWith(
-            likes: updatedLikes,
-          );
+          posts[index] = optimisticPost.copyWith(likes: updatedLikes);
 
           state = AsyncValue.data(posts);
         }
@@ -177,4 +177,5 @@ final likeLoadingProvider = Provider.family<bool, int>((ref, postId) {
 
 final projectsNotifierProvider =
     StateNotifierProvider<ProjectsNotifier, AsyncValue<List<Post>>>(
-        (ref) => ProjectsNotifier());
+      (ref) => ProjectsNotifier(),
+    );

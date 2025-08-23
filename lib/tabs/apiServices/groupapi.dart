@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/model/group.dart';
@@ -9,10 +10,11 @@ import 'package:http/http.dart' as http;
 Future<List<Group>> getJoinedGroups() async {
   try {
     final token = await JWTService.gettoken();
-    final userid =
-        await SharedPreferencesService.getInt('userId'); // Cache this
+    final userid = await SharedPreferencesService.getInt(
+      'userId',
+    ); // Cache this
     final response = await http.get(
-      Uri.parse('https://devconnect-backend-2-0c3c.onrender.com/group/$userid'),
+      Uri.parse('$apiurl/group/$userid'),
       headers: {'Authorization': 'Bearer $token'},
     );
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/comment.dart';
 
@@ -18,8 +19,7 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
     final token = await JWTService.gettoken();
 
     final response = await http.get(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/user/comments/$postId'),
+      Uri.parse('$apiurl/user/comments/$postId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -64,8 +64,7 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'https://devconnect-backend-2-0c3c.onrender.com/user/comment/$postId'),
+        Uri.parse('$apiurl/user/comment/$postId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -78,7 +77,8 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
         print("🟢 Received real comment: ${realComment.id}");
 
         // 3. Replace optimistic comment with real one
-        final updatedList = state.value
+        final updatedList =
+            state.value
                 ?.map((c) => c.id == optimisticComment.id ? realComment : c)
                 .toList() ??
             [];
@@ -89,7 +89,7 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
         // 4. Rollback on failure
         final rolledBack =
             state.value?.where((c) => c.id != optimisticComment.id).toList() ??
-                [];
+            [];
         state = AsyncValue.data(rolledBack);
         print("🔴 Failed to add comment, rolled back");
       }
@@ -97,7 +97,7 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
       // 5. Rollback on error
       final rolledBack =
           state.value?.where((c) => c.id != optimisticComment.id).toList() ??
-              [];
+          [];
       state = AsyncValue.data(rolledBack);
       print("🔴 Error adding comment: $e, rolled back");
       rethrow;
@@ -111,17 +111,14 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
 
     List<Comment> currentcomments = [...?currentState.value];
 
-    currentcomments.removeWhere(
-      (element) {
-        return element.id == commentId;
-      },
-    );
+    currentcomments.removeWhere((element) {
+      return element.id == commentId;
+    });
 
     state = AsyncValue.data(currentcomments);
 
     final response = await http.delete(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/user/comment/$commentId'),
+      Uri.parse('$apiurl/user/comment/$commentId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -130,11 +127,9 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
     if (response.statusCode == 200) {
       List<Comment> currentcomments = [...?currentState.value];
 
-      currentcomments.removeWhere(
-        (element) {
-          return element.id == commentId;
-        },
-      );
+      currentcomments.removeWhere((element) {
+        return element.id == commentId;
+      });
 
       state = AsyncValue.data(currentcomments);
     } else {
@@ -143,9 +138,13 @@ class CommentsNotifier extends StateNotifier<AsyncValue<List<Comment>>> {
   }
 }
 
-final commentsProvider = StateNotifierProvider.family<CommentsNotifier,
-    AsyncValue<List<Comment>>, int>((ref, postId) {
-  final notifier = CommentsNotifier(postId);
+final commentsProvider =
+    StateNotifierProvider.family<
+      CommentsNotifier,
+      AsyncValue<List<Comment>>,
+      int
+    >((ref, postId) {
+      final notifier = CommentsNotifier(postId);
 
-  return notifier;
-});
+      return notifier;
+    });

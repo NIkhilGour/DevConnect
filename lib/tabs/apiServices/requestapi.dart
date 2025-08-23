@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/model/request.dart';
@@ -14,7 +15,8 @@ Future<List<Request>> getAllRequest() async {
   try {
     final response = await http.get(
       Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/request/$userId'),
+        'https://devconnect-backend-2-0c3c.onrender.com/request/$userId',
+      ),
       headers: {'Authorization': 'Bearer $token'},
     );
     print(response.statusCode);
@@ -41,7 +43,8 @@ Future<void> acceptrequest(int requestId) async {
   try {
     final response = await http.put(
       Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/request/$requestId'),
+        'https://devconnect-backend-2-0c3c.onrender.com/request/$requestId',
+      ),
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -59,8 +62,7 @@ Future<void> deleterequest(int requestId) async {
 
   try {
     final response = await http.delete(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/request/$requestId'),
+      Uri.parse('$apiurl/request/$requestId'),
       headers: {'Authorization': 'Bearer $token'},
     );
 

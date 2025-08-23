@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:devconnect/core/api_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -16,8 +17,7 @@ Future<Post> publishPostApi(
 ) async {
   final token = await JWTService.gettoken();
 
-  final uri =
-      Uri.parse('https://devconnect-backend-2-0c3c.onrender.com/user/post');
+  final uri = Uri.parse('$apiurl/user/post');
   final request = http.MultipartRequest('POST', uri);
 
   request.headers['Authorization'] = 'Bearer $token';
@@ -42,9 +42,12 @@ Future<Post> publishPostApi(
     final mimeType = lookupMimeType(file.path);
     request.files.add(
       http.MultipartFile(
-          'file', http.ByteStream(file.openRead()), await file.length(),
-          filename: basename(file.path),
-          contentType: MediaType.parse(mimeType!)),
+        'file',
+        http.ByteStream(file.openRead()),
+        await file.length(),
+        filename: basename(file.path),
+        contentType: MediaType.parse(mimeType!),
+      ),
     );
   }
 

@@ -62,8 +62,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (snapshot.hasError) {
             return ErrorScreen(
               message: 'Unable to load User Profile',
-              onRetry: () {
-                getUserDetails();
+              onRetry: () async {
+                final token = await JWTService.gettoken();
+                if (context.mounted && JWTService.isExpired(token!)) {
+                  await JWTService.validateTokenAndRedirect(context, token);
+                } else {
+                  getUserDetails();
+                }
               },
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
@@ -175,14 +180,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         message: 'Error in loading projects',
                         onRetry: () async {
                           final token = await JWTService.gettoken();
-                          if (context.mounted) {
+                          if (context.mounted && JWTService.isExpired(token!)) {
                             await JWTService.validateTokenAndRedirect(
                               context,
-                              token!,
+                              token,
                             );
+                          } else {
+                            fetchUserProjects(widget.userid);
                           }
-
-                          fetchUserProjects(widget.userid);
                         },
                       );
                     } else if (snapshot.connectionState ==

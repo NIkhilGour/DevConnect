@@ -1,19 +1,18 @@
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/message.dart';
 import 'package:http/http.dart' as http;
 
 class MessageService {
-  static const _base = 'https://devconnect-backend-2-0c3c.onrender.com';
+  static final _base = apiurl;
 
   static Future<List<Message>> getMessagesByGroupId(int groupId) async {
     final token = await JWTService.gettoken();
     final res = await http.get(
       Uri.parse('$_base/group/$groupId/messages'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
+      headers: {'Authorization': 'Bearer $token'},
     );
     if (res.statusCode != 200) throw Exception('Failed to load messages');
     final data = jsonDecode(res.body) as List;

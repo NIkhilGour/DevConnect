@@ -1,10 +1,11 @@
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:http/http.dart' as http;
 
 Future<void> connectToPost(int postId) async {
   final token = await JWTService.gettoken();
   final response = await http.post(
-    Uri.parse('https://devconnect-backend-2-0c3c.onrender.com/request/$postId'),
+    Uri.parse('$apiurl/request/$postId'),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',

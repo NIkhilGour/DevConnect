@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:devconnect/core/api_url.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -8,27 +9,30 @@ Future<Map<dynamic, dynamic>?> setUserDetails({
   File? profilePictureFile,
   required String token,
 }) async {
-  final uri = Uri.parse(
-      'https://devconnect-backend-2-0c3c.onrender.com/user/userdetails');
+  final uri = Uri.parse('$apiurl/user/userdetails');
   final request = http.MultipartRequest('POST', uri);
 
   // Add Authorization header if needed
   request.headers['Authorization'] = 'Bearer $token';
 
   // Add userProfile as a JSON part
-  request.files.add(http.MultipartFile.fromString(
-    'userProfile',
-    jsonEncode(userProfile),
-    contentType: MediaType('application', 'json'),
-    filename: 'userProfile.json',
-  ));
+  request.files.add(
+    http.MultipartFile.fromString(
+      'userProfile',
+      jsonEncode(userProfile),
+      contentType: MediaType('application', 'json'),
+      filename: 'userProfile.json',
+    ),
+  );
 
   // Add image if available
   if (profilePictureFile != null) {
-    request.files.add(await http.MultipartFile.fromPath(
-      'profilepicture',
-      profilePictureFile.path,
-    ));
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'profilepicture',
+        profilePictureFile.path,
+      ),
+    );
   }
 
   final streamedResponse = await request.send();

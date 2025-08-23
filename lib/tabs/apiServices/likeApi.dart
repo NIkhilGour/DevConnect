@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 
 import 'package:devconnect/tabs/model/like.dart';
@@ -9,8 +10,7 @@ Future<Like> likePost(int postId) async {
   final token = await JWTService.gettoken();
 
   final response = await http.post(
-    Uri.parse(
-        'https://devconnect-backend-2-0c3c.onrender.com/user/like/$postId'),
+    Uri.parse('$apiurl/user/like/$postId'),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -31,7 +31,8 @@ Future<void> unlikePost(int postId) async {
 
   final response = await http.delete(
     Uri.parse(
-        'https://devconnect-backend-2-0c3c.onrender.com/user/like/$postId'),
+      'https://devconnect-backend-2-0c3c.onrender.com/user/like/$postId',
+    ),
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',

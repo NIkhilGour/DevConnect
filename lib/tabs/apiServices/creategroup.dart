@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 
 import 'package:devconnect/tabs/model/group.dart';
@@ -11,13 +12,13 @@ Future<Group> createGroup(int postId, String name) async {
     final token = await JWTService.gettoken();
 
     final response = await http.post(
-        Uri.parse(
-            'https://devconnect-backend-2-0c3c.onrender.com/group/create/$postId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({"name": name}));
+      Uri.parse('$apiurl/group/create/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({"name": name}),
+    );
 
     if (response.statusCode == 200) {
       final result = jsonDecode(response.body);

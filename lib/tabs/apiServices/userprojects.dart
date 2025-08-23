@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/post.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +10,7 @@ Future<List<Post>> fetchUserProjects(int userId) async {
   try {
     final token = await JWTService.gettoken();
     final response = await http.get(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/user/userProjects/$userId'),
+      Uri.parse('$apiurl/user/userProjects/$userId'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

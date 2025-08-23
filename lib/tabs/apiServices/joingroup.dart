@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/group.dart';
 import 'package:http/http.dart' as http;
@@ -10,11 +11,10 @@ Future<Group> joinGroupApi(int groupId, int userId) async {
     final token = await JWTService.gettoken();
 
     final response = await http.post(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/group/join/$groupId/$userId'),
+      Uri.parse('$apiurl/group/join/$groupId/$userId'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
       },
     );
 

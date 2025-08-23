@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:devconnect/core/api_url.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/post.dart';
 import 'package:devconnect/tabs/model/user.dart';
@@ -12,8 +13,7 @@ Future<List<UserProfile>> searchUser(String keyword) async {
 
   try {
     final response = await http.get(
-      Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/search/user?keyword=$keyword'),
+      Uri.parse('$apiurl/search/user?keyword=$keyword'),
       headers: {'Authorization': 'Bearer $token'},
     );
     print(response.statusCode);
@@ -41,7 +41,8 @@ Future<List<Post>> searchPost(String keyword) async {
   try {
     final response = await http.get(
       Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/search/post?keyword=$keyword'),
+        'https://devconnect-backend-2-0c3c.onrender.com/search/post?keyword=$keyword',
+      ),
       headers: {'Authorization': 'Bearer $token'},
     );
 
