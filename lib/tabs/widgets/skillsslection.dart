@@ -8,8 +8,11 @@ import 'package:devconnect/tabs/model/skill.dart';
 import 'package:flutter/material.dart';
 
 class Skillsselection extends StatefulWidget {
-  const Skillsselection(
-      {super.key, required this.selectedSkills, required this.onselect});
+  const Skillsselection({
+    super.key,
+    required this.selectedSkills,
+    required this.onselect,
+  });
 
   final List<Skill> selectedSkills;
   final Function(List<Skill>) onselect;
@@ -44,39 +47,48 @@ class _SkillsselectionState extends State<Skillsselection> {
         child: StatefulBuilder(
           builder: (context, setStateDialog) {
             return FutureBuilder(
-                future: fetchSkills(),
-                builder: (context, asyncSnapshot) {
-                  if (asyncSnapshot.hasError) {
-                    return ErrorScreen(
-                      message: 'Error in loading skills',
-                      onRetry: () {
-                        fetchSkills();
-                      },
-                    );
-                  }
+              future: fetchSkills(),
+              builder: (context, asyncSnapshot) {
+                if (asyncSnapshot.hasError) {
+                  return ErrorScreen(
+                    message: 'Error in loading skills',
+                    onRetry: () async {
+                      final token = await JWTService.gettoken();
+                      if (context.mounted) {
+                        await JWTService.validateTokenAndRedirect(
+                          context,
+                          token!,
+                        );
+                      }
 
-                  final allSkills = asyncSnapshot.data!;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: allSkills.length,
-                    itemBuilder: (context, index) {
-                      final skill = allSkills[index];
-                      return CheckboxListTile(
-                        title: Text(skill.skill!),
-                        value: tempSelected.contains(skill),
-                        onChanged: (bool? value) {
-                          setStateDialog(() {
-                            if (value == true) {
-                              tempSelected.add(skill);
-                            } else {
-                              tempSelected.remove(skill);
-                            }
-                          });
-                        },
-                      );
+                      fetchSkills();
                     },
                   );
-                });
+                }
+
+                final allSkills = asyncSnapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: allSkills.length,
+                  itemBuilder: (context, index) {
+                    final skill = allSkills[index];
+                    return CheckboxListTile(
+                      title: Text(skill.skill!),
+                      value: tempSelected.contains(skill),
+                      onChanged: (bool? value) {
+                        setStateDialog(() {
+                          if (value == true) {
+                            tempSelected.add(skill);
+                          } else {
+                            tempSelected.remove(skill);
+                          }
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            );
           },
         ),
       ),
