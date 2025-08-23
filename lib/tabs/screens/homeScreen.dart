@@ -1,11 +1,9 @@
-import 'package:devconnect/auth/authentication_tab.dart';
 import 'package:devconnect/core/colors.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/allpostApi.dart';
 import 'package:devconnect/tabs/apiServices/publishpost.dart';
-import 'package:devconnect/tabs/model/post.dart';
 import 'package:devconnect/tabs/widgets/postcontainer.dart';
 import 'package:devconnect/weblayout/widgets/web_search_header.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +42,6 @@ class _HomescreenState extends ConsumerState<Homescreen> {
         data['github'],
         data['skills'],
         data['file'],
-        context,
       );
 
       setState(() {
@@ -92,39 +89,17 @@ class _HomescreenState extends ConsumerState<Homescreen> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final allpost = ref.watch(projectsNotifierProvider);
-
-    ref.listen<AsyncValue<List<Post>>>(projectsNotifierProvider, (
-      prev,
-      next,
-    ) async {
-      next.whenOrNull(
-        error: (err, st) async {
-          if (err == 'Token expired') {
-            await JWTService.deletetoken();
-            if (context.mounted) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return AuthenticationTab();
-                  },
-                ),
-                (route) => false,
-              );
-            }
-          }
-        },
-      );
-    });
     return allpost.when(
-      error: (error, _) {
-        return ErrorScreen(
-          message: 'Unable to load Posts',
-          onRetry: () {
-            ref.refresh(projectsNotifierProvider);
-          },
-        );
-      },
+      error: (error, _) => ErrorScreen(
+        message: 'Unable to load Posts',
+        onRetry: () async {
+          final token = await JWTService.gettoken();
+          if (context.mounted) {
+            await JWTService.validateTokenAndRedirect(context, token!);
+          }
+          ref.refresh(projectsNotifierProvider);
+        },
+      ),
       loading: () => Center(child: CircularProgressIndicator(color: seedcolor)),
       data: (post) {
         return Column(
@@ -222,7 +197,7 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                         return Postcontainer(
                           onConnect: () => ref
                               .watch(projectsNotifierProvider.notifier)
-                              .toggleConnectionStatus(post[index].id!, context),
+                              .toggleConnectionStatus(post[index].id!),
                           onComment: () {},
                           onLike: () => ref
                               .watch(projectsNotifierProvider.notifier)

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/allpostApi.dart';
@@ -12,10 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({
-    required this.userid,
-    super.key,
-  });
+  const ProfileScreen({required this.userid, super.key});
   final int userid;
 
   @override
@@ -26,7 +24,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   int? userId;
 
   Future<UserProfile> getUserDetails() async {
-    UserProfile userProfile = await getOtherUserDetails(widget.userid,context);
+    UserProfile userProfile = await getOtherUserDetails(widget.userid);
     return userProfile;
   }
 
@@ -52,7 +50,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: Text(
           "Profile",
           style: GoogleFonts.lato(
-              fontSize: ismobile ? 25.sp : 25, fontWeight: FontWeight.w600),
+            fontSize: ismobile ? 25.sp : 25,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -85,7 +85,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         radius: 40,
                         backgroundImage: userProfile.profilePictureUrl != null
                             ? CachedNetworkImageProvider(
-                                userProfile.profilePictureUrl!)
+                                userProfile.profilePictureUrl!,
+                              )
                             : null,
                         child: userProfile.profilePictureUrl == null
                             ? const Icon(Icons.person, size: 40)
@@ -99,8 +100,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             Text(
                               userProfile.name ?? 'Unknown',
                               style: GoogleFonts.poppins(
-                                  fontSize: ismobile ? 25.sp : 25,
-                                  fontWeight: FontWeight.w600),
+                                fontSize: ismobile ? 25.sp : 25,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(userProfile.bio ?? 'No bio'),
@@ -133,15 +135,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         Text(
                           "Skills",
                           style: GoogleFonts.poppins(
-                              fontSize: ismobile ? 18.sp : 18,
-                              fontWeight: FontWeight.w600),
+                            fontSize: ismobile ? 18.sp : 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
                           children: userProfile.techSkills!
-                              .map((skill) =>
-                                  Chip(label: Text(skill.skill ?? '')))
+                              .map(
+                                (skill) => Chip(label: Text(skill.skill ?? '')),
+                              )
                               .toList(),
                         ),
                       ],
@@ -156,17 +160,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: Text(
                     "Posts",
                     style: GoogleFonts.poppins(
-                        fontSize: ismobile ? 20.sp : 20,
-                        fontWeight: FontWeight.w600),
+                      fontSize: ismobile ? 20.sp : 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
 
                 FutureBuilder(
-                  future: fetchUserProjects(widget.userid,context),
+                  future: fetchUserProjects(widget.userid),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return const Center(child: Text('Something went wrong'));
+                      return ErrorScreen(
+                        message: 'Error in loading projects',
+                        onRetry: () async {
+                          final token = await JWTService.gettoken();
+                          if (context.mounted) {
+                            await JWTService.validateTokenAndRedirect(
+                              context,
+                              token!,
+                            );
+                          }
+
+                          fetchUserProjects(widget.userid);
+                        },
+                      );
                     } else if (snapshot.connectionState ==
                         ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -186,7 +204,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           onConnect: () {
                             ref
                                 .watch(projectsNotifierProvider.notifier)
-                                .toggleConnectionStatus(data[index].id!,context);
+                                .toggleConnectionStatus(data[index].id!);
                           },
                           onComment: () {},
                           onLike: () {
@@ -194,11 +212,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 .watch(projectsNotifierProvider.notifier)
                                 .toggleLikePostInNotifier(data[index].id!);
                           },
-                          isliking:
-                              ref.watch(likeLoadingProvider(data[index].id!)),
-                          isLiked: data[index]
-                                  .likes
-                                  ?.any((like) => like.user?.id == userId) ??
+                          isliking: ref.watch(
+                            likeLoadingProvider(data[index].id!),
+                          ),
+                          isLiked:
+                              data[index].likes?.any(
+                                (like) => like.user?.id == userId,
+                              ) ??
                               false,
                           post: data[index],
                         );

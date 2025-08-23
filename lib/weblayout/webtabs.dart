@@ -69,14 +69,13 @@ class _WebTabsState extends State<WebTabs> {
     final islesswidth = width < 1000;
     List<Widget> widgets = [
       Homescreen(
-        ontap: () {
-          _handleAddPost();
-        },
-        publishData: _postData,
-      ),
+          ontap: () {
+            _handleAddPost();
+          },
+          publishData: _postData),
       Text('This is Post Screen'),
       WebGroupPage(),
-      ProfileScreen(userid: userId!),
+      ProfileScreen(userid: userId!)
     ];
     return Scaffold(
       body: Row(
@@ -104,39 +103,34 @@ class _WebTabsState extends State<WebTabs> {
           Expanded(
             flex: 3, // gives more space
             child: PageView.builder(
-              controller: pageController,
-              itemCount: widgets.length,
-              scrollDirection: Axis.vertical,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                return Center(
-                  child: Container(
-                    color: const Color(0xfff5f5f5),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 25,
-                    ),
-                    child: widgets[index],
-                  ),
-                );
-              },
-            ),
+                controller: pageController,
+                itemCount: widgets.length,
+                scrollDirection: Axis.vertical,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return Center(
+                    child: Container(
+                        color: const Color(0xfff5f5f5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 25),
+                        child: widgets[index]),
+                  );
+                }),
           ),
 
           /// right suggestion/drawer panel
           SizedBox(
-            width: islesswidth ? 190 : 250,
-            child: Drawerscreen(
-              isweb: true,
-              ontap: () {
-                pageController.animateToPage(
-                  3,
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.ease,
-                );
-              },
-            ),
-          ),
+              width: islesswidth ? 190 : 250,
+              child: Drawerscreen(
+                isweb: true,
+                ontap: () {
+                  pageController.animateToPage(
+                    3,
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.ease,
+                  );
+                },
+              )),
         ],
       ),
     );

@@ -175,7 +175,7 @@ class _PostcontainerState extends ConsumerState<Postcontainer> {
                               ondelete: () {
                                 ref
                                     .watch(projectsNotifierProvider.notifier)
-                                    .deletepostnotifier(widget.post.id!,context);
+                                    .deletepostnotifier(widget.post.id!);
                               },
                             );
                           },
@@ -211,7 +211,7 @@ class _PostcontainerState extends ConsumerState<Postcontainer> {
                                 ondelete: () {
                                   ref
                                       .watch(projectsNotifierProvider.notifier)
-                                      .deletepostnotifier(widget.post.id!,context);
+                                      .deletepostnotifier(widget.post.id!);
                                 },
                               ),
                             ),

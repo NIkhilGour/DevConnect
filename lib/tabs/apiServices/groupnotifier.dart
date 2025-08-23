@@ -1,11 +1,9 @@
-import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/apiServices/creategroup.dart';
 import 'package:devconnect/tabs/apiServices/groupapi.dart';
 import 'package:devconnect/tabs/apiServices/joingroup.dart';
 import 'package:devconnect/tabs/apiServices/leavegroup.dart';
 import 'package:devconnect/tabs/model/group.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Groupnotifier extends StateNotifier<AsyncValue<List<Group>>> {
@@ -14,10 +12,6 @@ class Groupnotifier extends StateNotifier<AsyncValue<List<Group>>> {
   }
 
   Future<void> getAllJoinedGroups() async {
-    final token = await JWTService.gettoken();
-    if (JWTService.isExpired(token!)) {
-      throw AsyncError("Token Expired", StackTrace.current);
-    }
     try {
       final groups = await getJoinedGroups();
 
@@ -27,9 +21,9 @@ class Groupnotifier extends StateNotifier<AsyncValue<List<Group>>> {
     }
   }
 
-  Future<Group> togglecreateGroup(int postId, String name,BuildContext context) async {
+  Future<Group> togglecreateGroup(int postId, String name) async {
     try {
-      final group = await createGroup(postId, name,context);
+      final group = await createGroup(postId, name);
       if (state.value != null) {
         final newstate = [...state.value!, group];
         state = AsyncData(newstate);
@@ -43,9 +37,9 @@ class Groupnotifier extends StateNotifier<AsyncValue<List<Group>>> {
     }
   }
 
-  Future<Group> togglejoinGroup(int groupId, int userId,BuildContext context) async {
+  Future<Group> togglejoinGroup(int groupId, int userId) async {
     try {
-      final group = await joinGroupApi(groupId, userId,context);
+      final group = await joinGroupApi(groupId, userId);
       if (state.value != null) {
         final newstate = [...state.value!, group];
         state = AsyncData(newstate);
@@ -59,9 +53,9 @@ class Groupnotifier extends StateNotifier<AsyncValue<List<Group>>> {
     }
   }
 
-  Future<void> toggleleaveGroup(int groupId, int userId,BuildContext context) async {
+  Future<void> toggleleaveGroup(int groupId, int userId) async {
     try {
-      await leaveGroup(groupId, userId,context);
+      await leaveGroup(groupId, userId);
       if (state.value != null) {
         List<Group> list = state.value!;
         list.removeWhere(

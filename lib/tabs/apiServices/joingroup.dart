@@ -3,16 +3,11 @@ import 'dart:convert';
 
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/group.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-Future<Group> joinGroupApi(int groupId, int userId,BuildContext context) async {
-    final token = await JWTService.gettoken();
-  if (context.mounted) {
-    JWTService.validateTokenAndRedirect(context, token!);
-  }
+Future<Group> joinGroupApi(int groupId, int userId) async {
   try {
-    
+    final token = await JWTService.gettoken();
 
     final response = await http.post(
       Uri.parse(

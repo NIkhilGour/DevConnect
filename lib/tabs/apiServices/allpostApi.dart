@@ -9,7 +9,6 @@ import 'package:devconnect/tabs/apiServices/likeApi.dart';
 import 'package:devconnect/tabs/model/like.dart';
 import 'package:devconnect/tabs/model/post.dart';
 import 'package:devconnect/tabs/model/user.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,15 +22,11 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
   bool isPostProcessing(int postId) => _processingLikes.contains(postId);
 
   Future<void> fetchProjects() async {
-    final token = await JWTService.gettoken();
-    if (JWTService.isExpired(token!)) {
-      throw AsyncError("Token Expired", StackTrace.current);
-    }
     try {
+      final token = await JWTService.gettoken();
       final response = await http.get(
         Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/user/projects',
-        ),
+            'https://devconnect-backend-2-0c3c.onrender.com/user/projects'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -43,17 +38,15 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
         final posts = result.map((e) => Post.fromJson(e)).toList();
         state = AsyncValue.data(posts);
       } else {
-        state = AsyncValue.error(
-          'Failed to fetch projects',
-          StackTrace.current,
-        );
+        state =
+            AsyncValue.error('Failed to fetch projects', StackTrace.current);
       }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
-  Future<void> deletepostnotifier(int postId, BuildContext context) async {
+  Future<void> deletepostnotifier(int postId) async {
     final currentState = state;
 
     int index = -1;
@@ -67,7 +60,7 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
     state = AsyncValue.data(posts);
 
     try {
-      await deletepost(postId, context);
+      await deletepost(postId);
     } catch (e) {
       state = currentState;
       print(e.toString());
@@ -123,7 +116,9 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
             ..removeWhere((like) => like.user?.id == userId)
             ..add(newLike);
 
-          posts[index] = optimisticPost.copyWith(likes: updatedLikes);
+          posts[index] = optimisticPost.copyWith(
+            likes: updatedLikes,
+          );
 
           state = AsyncValue.data(posts);
         }
@@ -140,7 +135,7 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
     }
   }
 
-  Future<void> toggleConnectionStatus(int postId, BuildContext context) async {
+  Future<void> toggleConnectionStatus(int postId) async {
     final currentState = state;
     if (currentState is! AsyncData<List<Post>>) return;
 
@@ -165,7 +160,7 @@ class ProjectsNotifier extends StateNotifier<AsyncValue<List<Post>>> {
 
     try {
       if (optimisticStatus == "PENDING") {
-        await connectToPost(postId, context);
+        await connectToPost(postId);
       } else {}
       // ✅ success, keep optimistic state
     } catch (e) {
@@ -182,5 +177,4 @@ final likeLoadingProvider = Provider.family<bool, int>((ref, postId) {
 
 final projectsNotifierProvider =
     StateNotifierProvider<ProjectsNotifier, AsyncValue<List<Post>>>(
-      (ref) => ProjectsNotifier(),
-    );
+        (ref) => ProjectsNotifier());

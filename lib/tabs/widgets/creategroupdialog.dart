@@ -54,7 +54,7 @@ class _CreateGroupDialogState extends ConsumerState<CreateGroupDialog> {
               final groupName = _groupNameController.text.trim();
               final group = await ref
                   .watch(groupProvider.notifier)
-                  .togglecreateGroup(widget.post.id!, groupName,context);
+                  .togglecreateGroup(widget.post.id!, groupName);
 
               setState(() {
                 isloading = false;

@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:devconnect/auth/authentication_tab.dart';
 import 'package:devconnect/core/colors.dart';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/error_screen.dart';
@@ -50,7 +49,7 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
 
       await ref
           .read(groupProvider.notifier)
-          .togglejoinGroup(widget.group.id!, widget.userId!,context);
+          .togglejoinGroup(widget.group.id!, widget.userId!);
       widget.group.members!.add(widget.userId!);
 
       setState(() => isjoining = false);
@@ -65,30 +64,6 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
     final userprofile = ref.watch(userdetailsprovider);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final ismobile = screenWidth < 800;
-
-     ref.listen<AsyncValue<List<Message>>>(groupChatProvider(widget.group.id!), (
-      prev,
-      next,
-    ) async {
-      next.whenOrNull(
-        error: (err, st) async {
-          if (err == 'Token expired') {
-            await JWTService.deletetoken();
-            if (context.mounted) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return AuthenticationTab();
-                  },
-                ),
-                (route) => false,
-              );
-            }
-          }
-        },
-      );
-    });
     return Scaffold(
       backgroundColor: backgroundcolor,
       appBar: AppBar(
@@ -101,8 +76,11 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
             CircleAvatar(
               radius: ismobile ? 24.r : 24,
               backgroundColor: Colors.blueGrey.shade400,
-              child: Icon(Icons.group_outlined,
-                  color: Colors.black, size: ismobile ? 28.r : 28),
+              child: Icon(
+                Icons.group_outlined,
+                color: Colors.black,
+                size: ismobile ? 28.r : 28,
+              ),
             ),
             SizedBox(width: ismobile ? 12.w : 12),
             Expanded(
@@ -114,7 +92,7 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            )
+            ),
           ],
         ),
         actions: [
@@ -124,7 +102,7 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
               if (value == 'leave') {
                 await ref
                     .read(groupProvider.notifier)
-                    .toggleleaveGroup(widget.group.id!, widget.userId!,context);
+                    .toggleleaveGroup(widget.group.id!, widget.userId!);
                 widget.group.members!.removeWhere((e) => e == widget.userId!);
                 if (context.mounted) Navigator.pop(context);
               }
@@ -157,21 +135,28 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
                     ),
                     child: const Center(child: CircularProgressIndicator()),
                   ),
-                )
+                ),
               ]
             : [
                 // messages list
                 Padding(
                   padding: EdgeInsets.only(bottom: ismobile ? 70.h : 70),
                   child: chatState.when(
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (_, e) => ErrorScreen(
-                        message: 'Inable to load chats',
-                        onRetry: () {
-                          ref.refresh(groupChatProvider(widget.group.id!));
-                        }),
+                      message: 'unable to load chats',
+                      onRetry: () async {
+                        final token = await JWTService.gettoken();
+                        if (context.mounted) {
+                          await JWTService.validateTokenAndRedirect(
+                            context,
+                            token!,
+                          );
+                        }
+                        ref.refresh(groupChatProvider(widget.group.id!));
+                      },
+                    ),
                     data: (messages) {
                       if (messages.isEmpty) {
                         return const Center(child: Text("No messages yet"));
@@ -180,20 +165,19 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
                         itemCount: messages.length,
                         reverse: true,
                         padding: EdgeInsets.symmetric(
-                            horizontal: ismobile ? 12.w : 12,
-                            vertical: ismobile ? 10.h : 10),
+                          horizontal: ismobile ? 12.w : 12,
+                          vertical: ismobile ? 10.h : 10,
+                        ),
                         itemBuilder: (context, index) {
                           final msg =
                               messages[messages.length - 1 - index]; // reverse
 
                           print(
-                              '${msg.message} :  ${msg.userProfile?.user?.id}');
+                            '${msg.message} :  ${msg.userProfile?.user?.id}',
+                          );
                           final isSent =
                               msg.userProfile?.user?.id == widget.userId;
-                          return ChatBubble(
-                            msg: msg,
-                            isSent: isSent,
-                          );
+                          return ChatBubble(msg: msg, isSent: isSent);
                         },
                       );
                     },
@@ -204,19 +188,22 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                        horizontal: ismobile ? 12.w : 12,
-                        vertical: ismobile ? 10.h : 10),
+                      horizontal: ismobile ? 12.w : 12,
+                      vertical: ismobile ? 10.h : 10,
+                    ),
                     color: Colors.white,
                     child: Row(
                       children: [
                         Expanded(
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: ismobile ? 14.w : 14),
+                              horizontal: ismobile ? 14.w : 14,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade800,
-                              borderRadius:
-                                  BorderRadius.circular(ismobile ? 24.r : 24),
+                              borderRadius: BorderRadius.circular(
+                                ismobile ? 24.r : 24,
+                              ),
                             ),
                             child: TextField(
                               controller: _controller,
@@ -236,16 +223,19 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
                             ? const SizedBox(
                                 height: 32,
                                 width: 32,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : GestureDetector(
                                 onTap: () =>
                                     _onSend(chatNotifier, userprofile.value!),
                                 child: CircleAvatar(
                                   backgroundColor: seedcolor,
-                                  child: const Icon(Icons.send,
-                                      color: Colors.white),
+                                  child: const Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                       ],

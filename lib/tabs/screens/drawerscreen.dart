@@ -5,7 +5,6 @@ import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 
 import 'package:devconnect/tabs/apiServices/userdetails.dart';
-import 'package:devconnect/tabs/model/userdetails.dart';
 
 import 'package:devconnect/tabs/screens/profilescren.dart';
 
@@ -26,29 +25,7 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
   @override
   Widget build(BuildContext context) {
     final userprofiledata = ref.watch(userdetailsprovider);
-    ref.listen<AsyncValue<UserProfile>>(userdetailsprovider, (
-      prev,
-      next,
-    ) async {
-      next.whenOrNull(
-        error: (err, st) async {
-          if (err == 'Token expired') {
-            await JWTService.deletetoken();
-            if (context.mounted) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return AuthenticationTab();
-                  },
-                ),
-                (route) => false,
-              );
-            }
-          }
-        },
-      );
-    });
+
     return userprofiledata.when(
       data: (userprofile) {
         return SafeArea(
@@ -185,7 +162,11 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
       error: (error, stackTrace) {
         return ErrorScreen(
           message: 'Unable to load UserDetails',
-          onRetry: () {
+          onRetry: () async {
+            final token = await JWTService.gettoken();
+            if (context.mounted) {
+              await JWTService.validateTokenAndRedirect(context, token!);
+            }
             ref.refresh(userdetailsprovider);
           },
         );

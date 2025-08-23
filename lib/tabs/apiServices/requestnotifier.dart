@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:devconnect/tabs/apiServices/requestapi.dart';
 import 'package:devconnect/tabs/model/request.dart';
@@ -17,7 +16,7 @@ class RequestNotifier extends StateNotifier<AsyncValue<List<Request>>> {
     }
   }
 
-  Future<void> toggleAcceptRequest(int requestId,BuildContext context) async {
+  Future<void> toggleAcceptRequest(int requestId) async {
     final previous = state.value ?? [];
 
     // Create a new list without the accepted request
@@ -25,7 +24,7 @@ class RequestNotifier extends StateNotifier<AsyncValue<List<Request>>> {
     state = AsyncData(updatedList);
 
     try {
-      await acceptrequest(requestId,context);
+      await acceptrequest(requestId);
     } catch (e, st) {
       // Rollback to previous state
       state = AsyncData(previous);
@@ -33,7 +32,7 @@ class RequestNotifier extends StateNotifier<AsyncValue<List<Request>>> {
     }
   }
 
-  Future<void> toggleDeleteRequest(int requestId,BuildContext context) async {
+  Future<void> toggleDeleteRequest(int requestId) async {
     final previous = state.value ?? [];
 
     // Create a new list without the deleted request
@@ -41,7 +40,7 @@ class RequestNotifier extends StateNotifier<AsyncValue<List<Request>>> {
     state = AsyncData(updatedList);
 
     try {
-      await deleterequest(requestId,context);
+      await deleterequest(requestId);
     } catch (e, st) {
       // Rollback on error
       state = AsyncData(previous);

@@ -21,7 +21,7 @@ class _SkillsselectionState extends State<Skillsselection> {
   Future<List<Skill>> fetchSkills() async {
     final token = await JWTService.gettoken();
     try {
-      final result = await getAllSkills(token!,context);
+      final result = await getAllSkills(token!);
       return result!;
     } catch (e) {
       throw AsyncError(e, StackTrace.current);

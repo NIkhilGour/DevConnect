@@ -42,20 +42,4 @@ class JWTService {
       );
     }
   }
-
-  static Future<void> redirect(context) async {
-    await deletetoken();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Please login again to continue')));
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return AuthenticationTab();
-        },
-      ),
-      (route) => false,
-    );
-  }
 }

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:devconnect/auth/authentication_tab.dart';
 
 import 'package:devconnect/core/colors.dart';
 import 'package:devconnect/core/jwtservice.dart';
@@ -7,7 +6,6 @@ import 'package:devconnect/error_screen.dart';
 
 import 'package:devconnect/splash_screen.dart';
 import 'package:devconnect/tabs/apiServices/userdetails.dart';
-import 'package:devconnect/tabs/model/userdetails.dart';
 import 'package:devconnect/tabs/screens/addPost.dart';
 import 'package:devconnect/tabs/screens/drawerscreen.dart';
 import 'package:devconnect/tabs/screens/groupscreen.dart';
@@ -34,11 +32,14 @@ class _TabsState extends ConsumerState<Tabs> {
   Map<String, dynamic>? _postData;
 
   Future<void> _handleAddPost() async {
-    final result = await Navigator.push(context, MaterialPageRoute(
-      builder: (context) {
-        return Addpost();
-      },
-    ));
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return Addpost();
+        },
+      ),
+    );
 
     if (result != null && result is Map<String, dynamic>) {
       setState(() {
@@ -52,38 +53,14 @@ class _TabsState extends ConsumerState<Tabs> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final userdata = ref.watch(userdetailsprovider);
-     ref.listen<AsyncValue<UserProfile>>(userdetailsprovider, (
-      prev,
-      next,
-    ) async {
-      next.whenOrNull(
-        error: (err, st) async {
-          if (err == 'Token expired') {
-            await JWTService.deletetoken();
-            if (context.mounted) {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return AuthenticationTab();
-                  },
-                ),
-                (route) => false,
-              );
-            }
-          }
-        },
-      );
-    });
     List<Widget> screens = [
       Homescreen(
-          publishData: _postData,
-          ontap: () {
-            _handleAddPost();
-          }),
-      Groupscreen(
-        selectgrouToChat: (group) {},
-      )
+        publishData: _postData,
+        ontap: () {
+          _handleAddPost();
+        },
+      ),
+      Groupscreen(selectgrouToChat: (group) {}),
     ];
 
     return userdata.when(
@@ -93,7 +70,11 @@ class _TabsState extends ConsumerState<Tabs> {
       error: (error, stackTrace) {
         return ErrorScreen(
           message: 'Unable to load user details',
-          onRetry: () {
+          onRetry: () async {
+            final token = await JWTService.gettoken();
+            if (context.mounted) {
+              await JWTService.validateTokenAndRedirect(context, token!);
+            }
             ref.refresh(userdetailsprovider);
           },
         );
@@ -109,10 +90,9 @@ class _TabsState extends ConsumerState<Tabs> {
                   title: GestureDetector(
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SearchScreen(),
-                          ));
+                        context,
+                        MaterialPageRoute(builder: (_) => SearchScreen()),
+                      );
                     },
                     child: Container(
                       height: 40,
@@ -129,7 +109,9 @@ class _TabsState extends ConsumerState<Tabs> {
                           Text(
                             'Search',
                             style: TextStyle(
-                                color: Colors.grey[600], fontSize: 16),
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
@@ -158,26 +140,22 @@ class _TabsState extends ConsumerState<Tabs> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: IconButton(
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
                               builder: (context) {
                                 return Postrequestscreen();
                               },
-                            ));
-                          },
-                          icon: Icon(
-                            Icons.person_add,
-                            size: 35.r,
-                          )),
-                    )
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.person_add, size: 35.r),
+                      ),
+                    ),
                   ],
                 ),
-                drawer: Drawer(
-                  child: Drawerscreen(
-                    ontap: () {},
-                    isweb: false,
-                  ),
-                ),
+                drawer: Drawer(child: Drawerscreen(ontap: () {}, isweb: false)),
                 body: PageView.builder(
                   itemCount: screens.length,
                   controller: controller,
@@ -200,19 +178,21 @@ class _TabsState extends ConsumerState<Tabs> {
                   },
                   items: const [
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.home), label: 'Home'),
+                      icon: Icon(Icons.home),
+                      label: 'Home',
+                    ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.add, color: Colors.transparent),
                       label: '', // Dummy for center FAB
                     ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.group), label: 'Group'),
+                      icon: Icon(Icons.group),
+                      label: 'Group',
+                    ),
                   ],
                 ),
                 floatingActionButton: FloatingActionButton(
-                  child: Icon(
-                    Icons.add,
-                  ),
+                  child: Icon(Icons.add),
                   onPressed: () {
                     _handleAddPost();
                   },
