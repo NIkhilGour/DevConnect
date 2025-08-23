@@ -1,8 +1,11 @@
+import 'package:devconnect/auth/authentication_tab.dart';
 import 'package:devconnect/core/colors.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/allpostApi.dart';
 import 'package:devconnect/tabs/apiServices/publishpost.dart';
+import 'package:devconnect/tabs/model/post.dart';
 import 'package:devconnect/tabs/widgets/postcontainer.dart';
 import 'package:devconnect/weblayout/widgets/web_search_header.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +44,7 @@ class _HomescreenState extends ConsumerState<Homescreen> {
         data['github'],
         data['skills'],
         data['file'],
+        context,
       );
 
       setState(() {
@@ -54,8 +58,9 @@ class _HomescreenState extends ConsumerState<Homescreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to publish: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to publish: $e')));
       }
       setState(() {
         _isPublishing = false;
@@ -87,13 +92,39 @@ class _HomescreenState extends ConsumerState<Homescreen> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final allpost = ref.watch(projectsNotifierProvider);
-    return allpost.when(
-      error: (error, _) => ErrorScreen(
-        message: 'Unable to load Posts',
-        onRetry: () {
-          ref.refresh(projectsNotifierProvider);
+
+    ref.listen<AsyncValue<List<Post>>>(projectsNotifierProvider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
         },
-      ),
+      );
+    });
+    return allpost.when(
+      error: (error, _) {
+        return ErrorScreen(
+          message: 'Unable to load Posts',
+          onRetry: () {
+            ref.refresh(projectsNotifierProvider);
+          },
+        );
+      },
       loading: () => Center(child: CircularProgressIndicator(color: seedcolor)),
       data: (post) {
         return Column(
@@ -103,8 +134,9 @@ class _HomescreenState extends ConsumerState<Homescreen> {
             if (_isPublishing || _isCompleted)
               Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: isMobile ? 12.w : 12,
-                    vertical: isMobile ? 8.h : 8),
+                  horizontal: isMobile ? 12.w : 12,
+                  vertical: isMobile ? 8.h : 8,
+                ),
                 child: Container(
                   padding: EdgeInsets.all(isMobile ? 12.r : 12),
                   decoration: BoxDecoration(
@@ -112,28 +144,35 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                     borderRadius: BorderRadius.circular(isMobile ? 12.r : 12),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 6,
-                          offset: Offset(0, 4))
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 6,
+                        offset: Offset(0, 4),
+                      ),
                     ],
                   ),
                   child: Row(
                     children: [
                       _isCompleted
-                          ? const Icon(Icons.check_circle,
-                              color: Colors.green, size: 28)
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 28,
+                            )
                           : SizedBox(
                               width: 24,
                               height: 24,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2.5, color: seedcolor),
+                                strokeWidth: 2.5,
+                                color: seedcolor,
+                              ),
                             ),
                       SizedBox(width: isMobile ? 12.w : 12),
                       Text(
                         _isCompleted ? 'Post published!' : 'Finishing up...',
                         style: TextStyle(
-                            fontSize: isMobile ? 16.sp : 16,
-                            fontWeight: FontWeight.w500),
+                          fontSize: isMobile ? 16.sp : 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -152,8 +191,9 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                     color: backgroundcolor,
                     borderRadius: BorderRadius.circular(isMobile ? 10.r : 10),
                   ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: isMobile ? 12.r : 12),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 12.r : 12,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -161,9 +201,10 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                         children: [
                           Icon(Icons.edit_square, color: seedcolor),
                           SizedBox(width: isMobile ? 10.w : 10),
-                          Text('Start a post',
-                              style:
-                                  TextStyle(fontSize: isMobile ? 20.sp : 20)),
+                          Text(
+                            'Start a post',
+                            style: TextStyle(fontSize: isMobile ? 20.sp : 20),
+                          ),
                         ],
                       ),
                       Icon(Icons.language_outlined, color: seedcolor),
@@ -181,22 +222,24 @@ class _HomescreenState extends ConsumerState<Homescreen> {
                         return Postcontainer(
                           onConnect: () => ref
                               .watch(projectsNotifierProvider.notifier)
-                              .toggleConnectionStatus(post[index].id!),
+                              .toggleConnectionStatus(post[index].id!, context),
                           onComment: () {},
                           onLike: () => ref
                               .watch(projectsNotifierProvider.notifier)
                               .toggleLikePostInNotifier(post[index].id!),
-                          isliking:
-                              ref.watch(likeLoadingProvider(post[index].id!)),
-                          isLiked: post[index]
-                                  .likes
-                                  ?.any((like) => like.user?.id == userId) ??
+                          isliking: ref.watch(
+                            likeLoadingProvider(post[index].id!),
+                          ),
+                          isLiked:
+                              post[index].likes?.any(
+                                (like) => like.user?.id == userId,
+                              ) ??
                               false,
                           post: post[index],
                         );
                       },
                     ),
-                  )
+                  ),
           ],
         );
       },

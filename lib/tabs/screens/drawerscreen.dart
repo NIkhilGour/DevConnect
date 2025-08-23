@@ -5,6 +5,7 @@ import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 
 import 'package:devconnect/tabs/apiServices/userdetails.dart';
+import 'package:devconnect/tabs/model/userdetails.dart';
 
 import 'package:devconnect/tabs/screens/profilescren.dart';
 
@@ -25,7 +26,29 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
   @override
   Widget build(BuildContext context) {
     final userprofiledata = ref.watch(userdetailsprovider);
-
+    ref.listen<AsyncValue<UserProfile>>(userdetailsprovider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
+        },
+      );
+    });
     return userprofiledata.when(
       data: (userprofile) {
         return SafeArea(
@@ -36,13 +59,16 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
                 onTap: () {
                   widget.isweb
                       ? widget.ontap()
-                      : Navigator.push(context, MaterialPageRoute(
-                          builder: (context) {
-                            return ProfileScreen(
-                              userid: userprofile.user!.id!,
-                            );
-                          },
-                        ));
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ProfileScreen(
+                                userid: userprofile.user!.id!,
+                              );
+                            },
+                          ),
+                        );
                 },
                 child: Padding(
                   padding: EdgeInsets.all(widget.isweb ? 16 : 16.r),
@@ -50,8 +76,9 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding:
-                            EdgeInsets.only(bottom: widget.isweb ? 12 : 12.r),
+                        padding: EdgeInsets.only(
+                          bottom: widget.isweb ? 12 : 12.r,
+                        ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(50),
                           child: CachedNetworkImage(
@@ -63,30 +90,35 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.only(bottom: widget.isweb ? 8 : 8.r),
+                        padding: EdgeInsets.only(
+                          bottom: widget.isweb ? 8 : 8.r,
+                        ),
                         child: Text(
                           userprofile.name!,
                           style: GoogleFonts.poppins(
-                              fontSize: widget.isweb ? 22 : 22.sp,
-                              fontWeight: FontWeight.w600),
+                            fontSize: widget.isweb ? 22 : 22.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.only(bottom: widget.isweb ? 8 : 8.r),
+                        padding: EdgeInsets.only(
+                          bottom: widget.isweb ? 8 : 8.r,
+                        ),
                         child: Text(
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           userprofile.bio!,
                           style: TextStyle(
-                              fontSize: widget.isweb ? 14 : 14.sp,
-                              fontWeight: FontWeight.w500),
+                            fontSize: widget.isweb ? 14 : 14.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.only(bottom: widget.isweb ? 8 : 8.r),
+                        padding: EdgeInsets.only(
+                          bottom: widget.isweb ? 8 : 8.r,
+                        ),
                         child: Text(
                           userprofile.location!,
                           style: GoogleFonts.lato(
@@ -100,15 +132,13 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
                 ),
               ),
               Spacer(),
-              Container(
-                height: widget.isweb ? 0.7 : 0.7.h,
-                color: Colors.grey,
-              ),
+              Container(height: widget.isweb ? 0.7 : 0.7.h, color: Colors.grey),
               Padding(
                 padding: EdgeInsets.only(
-                    bottom: widget.isweb ? 16 : 16.r,
-                    left: widget.isweb ? 16 : 16.r,
-                    top: widget.isweb ? 16 : 16.r),
+                  bottom: widget.isweb ? 16 : 16.r,
+                  left: widget.isweb ? 16 : 16.r,
+                  top: widget.isweb ? 16 : 16.r,
+                ),
                 child: GestureDetector(
                   onTap: () async {
                     await JWTService.deletetoken();
@@ -135,20 +165,19 @@ class _DrawerscreenState extends ConsumerState<Drawerscreen> {
                         size: widget.isweb ? 30 : 30.r,
                         color: Colors.red,
                       ),
-                      SizedBox(
-                        width: widget.isweb ? 10 : 10.w,
-                      ),
+                      SizedBox(width: widget.isweb ? 10 : 10.w),
                       Text(
                         'Logout',
                         style: GoogleFonts.poppins(
-                            color: Colors.red,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500),
-                      )
+                          color: Colors.red,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );

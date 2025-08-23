@@ -1,10 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:devconnect/auth/authentication_tab.dart';
 
 import 'package:devconnect/core/colors.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/error_screen.dart';
 
 import 'package:devconnect/splash_screen.dart';
 import 'package:devconnect/tabs/apiServices/userdetails.dart';
+import 'package:devconnect/tabs/model/userdetails.dart';
 import 'package:devconnect/tabs/screens/addPost.dart';
 import 'package:devconnect/tabs/screens/drawerscreen.dart';
 import 'package:devconnect/tabs/screens/groupscreen.dart';
@@ -49,6 +52,29 @@ class _TabsState extends ConsumerState<Tabs> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final userdata = ref.watch(userdetailsprovider);
+     ref.listen<AsyncValue<UserProfile>>(userdetailsprovider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
+        },
+      );
+    });
     List<Widget> screens = [
       Homescreen(
           publishData: _postData,

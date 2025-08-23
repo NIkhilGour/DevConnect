@@ -3,14 +3,19 @@ import 'dart:convert';
 
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/post.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Post>> fetchUserProjects(int userId) async {
+Future<List<Post>> fetchUserProjects(int userId, BuildContext context) async {
+  final token = await JWTService.gettoken();
+  if (JWTService.isExpired(token!)) {
+    throw AsyncError("Token Expired", StackTrace.current);
+  }
   try {
-    final token = await JWTService.gettoken();
     final response = await http.get(
       Uri.parse(
-          'https://devconnect-backend-2-0c3c.onrender.com/user/userProjects/$userId'),
+        'https://devconnect-backend-2-0c3c.onrender.com/user/userProjects/$userId',
+      ),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

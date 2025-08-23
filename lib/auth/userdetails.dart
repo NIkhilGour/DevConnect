@@ -45,12 +45,12 @@ class _UserdetailsState extends State<Userdetails> {
 
   @override
   void initState() {
-    fetchSkills(widget.token);
+    fetchSkills(widget.token, context);
     super.initState();
   }
 
-  void fetchSkills(String token) async {
-    final List<Skill>? result = await getAllSkills(token);
+  void fetchSkills(String token, context) async {
+    final List<Skill>? result = await getAllSkills(token, context);
     if (result == null) return;
     setState(() {
       allSkills = result;
@@ -69,8 +69,9 @@ class _UserdetailsState extends State<Userdetails> {
 
       return;
     }
-    XFile? pickedimage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    XFile? pickedimage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedimage != null) {
       setState(() async {
         image = File(pickedimage.path);
@@ -105,10 +106,11 @@ class _UserdetailsState extends State<Userdetails> {
                         ),
                         child: image != null
                             ? ClipOval(
-                                child: Image.file(image!, fit: BoxFit.cover))
+                                child: Image.file(image!, fit: BoxFit.cover),
+                              )
                             : imagefileBytes != null
-                                ? ClipOval(child: Image.memory(imagefileBytes!))
-                                : null,
+                            ? ClipOval(child: Image.memory(imagefileBytes!))
+                            : null,
                       ),
                       Positioned(
                         bottom: 0,
@@ -117,9 +119,11 @@ class _UserdetailsState extends State<Userdetails> {
                           backgroundColor: Colors.white,
                           radius: isMobile ? 18.r : 18,
                           child: IconButton(
-                            icon: Icon(Icons.edit,
-                                size: isMobile ? 18.r : 18,
-                                color: Colors.black),
+                            icon: Icon(
+                              Icons.edit,
+                              size: isMobile ? 18.r : 18,
+                              color: Colors.black,
+                            ),
                             onPressed: () {
                               kIsWeb ? pickimage(true) : pickimage(false);
                             },
@@ -202,8 +206,9 @@ class _UserdetailsState extends State<Userdetails> {
                           borderRadius: BorderRadius.circular(12.r),
                         ),
                         padding: EdgeInsets.symmetric(
-                            horizontal: isMobile ? 20.w : 20,
-                            vertical: isMobile ? 12.h : 12),
+                          horizontal: isMobile ? 20.w : 20,
+                          vertical: isMobile ? 12.h : 12,
+                        ),
                       ),
                     ),
                     Container(
@@ -218,17 +223,19 @@ class _UserdetailsState extends State<Userdetails> {
                             ? Text(
                                 dob.toString().substring(0, 10),
                                 style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               )
                             : Text(
                                 'Select DOB',
                                 style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 SizedBox(height: isMobile ? 10.h : 10),
@@ -237,9 +244,10 @@ class _UserdetailsState extends State<Userdetails> {
                   child: Text(
                     "Gender",
                     style: TextStyle(
-                        fontSize: isMobile ? 14.sp : 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500),
+                      fontSize: isMobile ? 14.sp : 14,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 SizedBox(height: isMobile ? 8.h : 8),
@@ -249,23 +257,25 @@ class _UserdetailsState extends State<Userdetails> {
                     Container(
                       width: isMobile ? 170.w : 170,
                       padding: EdgeInsets.symmetric(
-                          horizontal: isMobile ? 12.w : 12),
+                        horizontal: isMobile ? 12.w : 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(isMobile ? 10.r : 10),
+                        borderRadius: BorderRadius.circular(
+                          isMobile ? 10.r : 10,
+                        ),
                       ),
                       child: DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                        ),
+                        decoration: InputDecoration(border: InputBorder.none),
                         initialValue: dropdownvalue,
                         hint: Text("Select your gender"),
                         items: ['Male', 'Female', 'Prefer not to say']
-                            .map((gender) => DropdownMenuItem(
-                                  value: gender,
-                                  child: Text(gender),
-                                ))
+                            .map(
+                              (gender) => DropdownMenuItem(
+                                value: gender,
+                                child: Text(gender),
+                              ),
+                            )
                             .toList(),
                         onChanged: (value) {
                           setState(() {
@@ -275,8 +285,9 @@ class _UserdetailsState extends State<Userdetails> {
                         icon: Icon(Icons.keyboard_arrow_down_rounded),
                         dropdownColor: Colors.white,
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: isMobile ? 14.sp : 14),
+                          color: Colors.black,
+                          fontSize: isMobile ? 14.sp : 14,
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please select gender';
@@ -289,12 +300,14 @@ class _UserdetailsState extends State<Userdetails> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(isMobile ? 12.r : 12),
+                          borderRadius: BorderRadius.circular(
+                            isMobile ? 12.r : 12,
+                          ),
                         ),
                         padding: EdgeInsets.symmetric(
-                            horizontal: isMobile ? 40.w : 40,
-                            vertical: isMobile ? 12.h : 12),
+                          horizontal: isMobile ? 40.w : 40,
+                          vertical: isMobile ? 12.h : 12,
+                        ),
                       ),
                       onPressed: () {
                         showDialog(
@@ -315,9 +328,11 @@ class _UserdetailsState extends State<Userdetails> {
                       child: Text(
                         'Select skills',
                         style: TextStyle(
-                            fontSize: isMobile ? 16.sp : 16, color: seedcolor),
+                          fontSize: isMobile ? 16.sp : 16,
+                          color: seedcolor,
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
                 SizedBox(height: isMobile ? 30.h : 30),
@@ -328,14 +343,16 @@ class _UserdetailsState extends State<Userdetails> {
                       borderRadius: BorderRadius.circular(isMobile ? 12.r : 12),
                     ),
                     padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 40.w : 40,
-                        vertical: isMobile ? 12.h : 12),
+                      horizontal: isMobile ? 40.w : 40,
+                      vertical: isMobile ? 12.h : 12,
+                    ),
                   ),
                   onPressed: () async {
                     if (image == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text("Please select profile picture")),
+                          content: Text("Please select profile picture"),
+                        ),
                       );
                       return;
                     }
@@ -343,15 +360,16 @@ class _UserdetailsState extends State<Userdetails> {
                       if (dob == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text("Please select date of birth")),
+                            content: Text("Please select date of birth"),
+                          ),
                         );
                         return;
                       }
                       if (selectedSkills.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content:
-                                  Text("Please select at least one skill")),
+                            content: Text("Please select at least one skill"),
+                          ),
                         );
                         return;
                       }
@@ -359,22 +377,29 @@ class _UserdetailsState extends State<Userdetails> {
                       setState(() {
                         isloading = true;
                       });
-                      final response = await setUserDetails(userProfile: {
-                        "name": usernamecontroller.text,
-                        "phonenumber": phonenumbercontroller.text,
-                        "gender": dropdownvalue,
-                        "location": locationcontroller.text,
-                        "dateofbirth": dob!.toString().substring(0, 10),
-                        "bio": biocontroller.text,
-                        "techSkills": selectedSkills
-                      }, token: widget.token, profilePictureFile: image);
+                      final response = await setUserDetails(
+                        context,
+                        userProfile: {
+                          "name": usernamecontroller.text,
+                          "phonenumber": phonenumbercontroller.text,
+                          "gender": dropdownvalue,
+                          "location": locationcontroller.text,
+                          "dateofbirth": dob!.toString().substring(0, 10),
+                          "bio": biocontroller.text,
+                          "techSkills": selectedSkills,
+                        },
+                        token: widget.token,
+                        profilePictureFile: image,
+                      );
 
                       setState(() {
                         isloading = false;
                       });
                       if (response != null) {
                         await SharedPreferencesService.setInt(
-                            'userId', response['user']['id']);
+                          'userId',
+                          response['user']['id'],
+                        );
                         JWTService.addtoken(widget.token);
 
                         if (context.mounted) {
@@ -397,15 +422,14 @@ class _UserdetailsState extends State<Userdetails> {
                   },
                   child: isloading
                       ? Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
+                          child: CircularProgressIndicator(color: Colors.white),
                         )
                       : Text(
                           'Save Details',
                           style: TextStyle(
-                              fontSize: isMobile ? 16.sp : 16,
-                              color: Colors.white),
+                            fontSize: isMobile ? 16.sp : 16,
+                            color: Colors.white,
+                          ),
                         ),
                 ),
               ],
@@ -442,8 +466,11 @@ class _UserdetailsState extends State<Userdetails> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(CupertinoIcons.globe,
-                              color: Colors.white, size: 70),
+                          Icon(
+                            CupertinoIcons.globe,
+                            color: Colors.white,
+                            size: 70,
+                          ),
                           SizedBox(height: 20),
                           Text(
                             'DevConnect',
@@ -457,7 +484,9 @@ class _UserdetailsState extends State<Userdetails> {
                           Text(
                             'Connect • Collaborate • Grow',
                             style: GoogleFonts.redHatText(
-                                fontSize: 18, color: Colors.white70),
+                              fontSize: 18,
+                              color: Colors.white70,
+                            ),
                           ),
                         ],
                       ),
@@ -466,10 +495,7 @@ class _UserdetailsState extends State<Userdetails> {
                 ),
 
                 // ------------- LOGIN CARD (same) --------------
-                Expanded(
-                  flex: 2,
-                  child: Center(child: userDetailswidget),
-                ),
+                Expanded(flex: 2, child: Center(child: userDetailswidget)),
               ],
             ),
           );

@@ -1,5 +1,8 @@
+import 'package:devconnect/auth/authentication_tab.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/requestnotifier.dart';
+import 'package:devconnect/tabs/model/request.dart';
 import 'package:devconnect/tabs/widgets/requestcontainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +22,29 @@ class _PostrequestscreenState extends ConsumerState<Postrequestscreen> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final requestdata = ref.watch(requestProvider);
+     ref.listen<AsyncValue<List<Request>>>(requestProvider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
+        },
+      );
+    });
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -47,7 +73,7 @@ class _PostrequestscreenState extends ConsumerState<Postrequestscreen> {
                     try {
                       await ref
                           .watch(requestProvider.notifier)
-                          .toggleAcceptRequest(id);
+                          .toggleAcceptRequest(id,context);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -59,7 +85,7 @@ class _PostrequestscreenState extends ConsumerState<Postrequestscreen> {
                     try {
                       await ref
                           .watch(requestProvider.notifier)
-                          .toggleDeleteRequest(id);
+                          .toggleDeleteRequest(id,context);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(

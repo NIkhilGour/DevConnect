@@ -7,9 +7,11 @@ import 'package:devconnect/tabs/model/userdetails.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<UserProfile>> searchUser(String keyword) async {
-  final token = await JWTService.gettoken();
-
+Future<List<UserProfile>> searchUser(String keyword,BuildContext context) async {
+    final token = await JWTService.gettoken();
+  if (context.mounted) {
+    JWTService.validateTokenAndRedirect(context, token!);
+  }
   try {
     final response = await http.get(
       Uri.parse(

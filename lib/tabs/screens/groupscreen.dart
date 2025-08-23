@@ -1,3 +1,5 @@
+import 'package:devconnect/auth/authentication_tab.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/groupnotifier.dart';
@@ -35,6 +37,29 @@ class _GroupscreenState extends ConsumerState<Groupscreen> {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 800;
     final groupsdata = ref.watch(groupProvider);
+     ref.listen<AsyncValue<List<Group>>>(groupProvider, (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
+        },
+      );
+    });
     return groupsdata.when(
       data: (data) {
         return ListView.builder(

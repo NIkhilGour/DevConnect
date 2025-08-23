@@ -99,7 +99,7 @@ class SearchScreenState extends ConsumerState<SearchScreen>
                       });
 
                       List<UserProfile> userlist =
-                          await searchUser(_controller.text);
+                          await searchUser(_controller.text,context);
 
                       setState(() {
                         isSearchingUser = false;
@@ -139,7 +139,7 @@ class SearchScreenState extends ConsumerState<SearchScreen>
                               onConnect: () {
                                 ref
                                     .watch(projectsNotifierProvider.notifier)
-                                    .toggleConnectionStatus(post![index].id!);
+                                    .toggleConnectionStatus(post![index].id!,context);
                               },
                               onComment: () {},
                               onLike: () {

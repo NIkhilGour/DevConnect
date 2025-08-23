@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:devconnect/core/jwtservice.dart';
@@ -8,6 +9,9 @@ import 'package:http/http.dart' as http;
 Future<Like> likePost(int postId) async {
   final token = await JWTService.gettoken();
 
+    if (JWTService.isExpired(token!)) {
+      throw AsyncError("Token Expired", StackTrace.current);
+    }
   final response = await http.post(
     Uri.parse(
         'https://devconnect-backend-2-0c3c.onrender.com/user/like/$postId'),

@@ -26,7 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   int? userId;
 
   Future<UserProfile> getUserDetails() async {
-    UserProfile userProfile = await getOtherUserDetails(widget.userid);
+    UserProfile userProfile = await getOtherUserDetails(widget.userid,context);
     return userProfile;
   }
 
@@ -163,7 +163,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 12),
 
                 FutureBuilder(
-                  future: fetchUserProjects(widget.userid),
+                  future: fetchUserProjects(widget.userid,context),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return const Center(child: Text('Something went wrong'));
@@ -186,7 +186,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           onConnect: () {
                             ref
                                 .watch(projectsNotifierProvider.notifier)
-                                .toggleConnectionStatus(data[index].id!);
+                                .toggleConnectionStatus(data[index].id!,context);
                           },
                           onComment: () {},
                           onLike: () {

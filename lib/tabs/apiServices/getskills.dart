@@ -1,9 +1,14 @@
 import 'dart:convert';
 
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/tabs/model/skill.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Skill>?> getAllSkills(String token) async {
+Future<List<Skill>?> getAllSkills(String token, BuildContext context) async {
+  if (context.mounted) {
+    JWTService.validateTokenAndRedirect(context, token);
+  }
   try {
     final response = await http.get(
       Uri.parse('https://devconnect-backend-2-0c3c.onrender.com/user/skills'),

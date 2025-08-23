@@ -4,11 +4,14 @@ import 'dart:convert';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/model/group.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Future<List<Group>> getJoinedGroups() async {
-  try {
     final token = await JWTService.gettoken();
+ 
+  try {
+    
     final userid =
         await SharedPreferencesService.getInt('userId'); // Cache this
     final response = await http.get(

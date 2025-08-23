@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:devconnect/auth/authentication_tab.dart';
 import 'package:devconnect/core/colors.dart';
+import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/error_screen.dart';
 import 'package:devconnect/tabs/apiServices/groupchatnotifier.dart';
 import 'package:devconnect/tabs/apiServices/groupnotifier.dart';
@@ -48,7 +50,7 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
 
       await ref
           .read(groupProvider.notifier)
-          .togglejoinGroup(widget.group.id!, widget.userId!);
+          .togglejoinGroup(widget.group.id!, widget.userId!,context);
       widget.group.members!.add(widget.userId!);
 
       setState(() => isjoining = false);
@@ -63,6 +65,30 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
     final userprofile = ref.watch(userdetailsprovider);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final ismobile = screenWidth < 800;
+
+     ref.listen<AsyncValue<List<Message>>>(groupChatProvider(widget.group.id!), (
+      prev,
+      next,
+    ) async {
+      next.whenOrNull(
+        error: (err, st) async {
+          if (err == 'Token expired') {
+            await JWTService.deletetoken();
+            if (context.mounted) {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return AuthenticationTab();
+                  },
+                ),
+                (route) => false,
+              );
+            }
+          }
+        },
+      );
+    });
     return Scaffold(
       backgroundColor: backgroundcolor,
       appBar: AppBar(
@@ -98,7 +124,7 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
               if (value == 'leave') {
                 await ref
                     .read(groupProvider.notifier)
-                    .toggleleaveGroup(widget.group.id!, widget.userId!);
+                    .toggleleaveGroup(widget.group.id!, widget.userId!,context);
                 widget.group.members!.removeWhere((e) => e == widget.userId!);
                 if (context.mounted) Navigator.pop(context);
               }

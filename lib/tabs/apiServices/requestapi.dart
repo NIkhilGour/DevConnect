@@ -4,13 +4,15 @@ import 'dart:convert';
 import 'package:devconnect/core/jwtservice.dart';
 import 'package:devconnect/core/user_id_service.dart';
 import 'package:devconnect/tabs/model/request.dart';
+import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 
 Future<List<Request>> getAllRequest() async {
   final token = await JWTService.gettoken();
   final userId = await SharedPreferencesService.getInt('userId');
-
+ 
+  
   try {
     final response = await http.get(
       Uri.parse(
@@ -35,9 +37,12 @@ Future<List<Request>> getAllRequest() async {
   }
 }
 
-Future<void> acceptrequest(int requestId) async {
+Future<void> acceptrequest(int requestId,BuildContext context) async {
   final token = await JWTService.gettoken();
 
+    if (JWTService.isExpired(token!)) {
+      throw AsyncError("Token Expired", StackTrace.current);
+    }
   try {
     final response = await http.put(
       Uri.parse(
@@ -54,9 +59,12 @@ Future<void> acceptrequest(int requestId) async {
   }
 }
 
-Future<void> deleterequest(int requestId) async {
+Future<void> deleterequest(int requestId,BuildContext context) async {
   final token = await JWTService.gettoken();
 
+    if (JWTService.isExpired(token!)) {
+      throw AsyncError("Token Expired", StackTrace.current);
+    }
   try {
     final response = await http.delete(
       Uri.parse(
