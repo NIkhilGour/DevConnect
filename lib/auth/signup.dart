@@ -68,8 +68,9 @@ class _SignupState extends State<Signup> {
         });
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Account Create Please login to continue')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Account Create Please login to continue')),
+          );
         }
       }
     } catch (e) {
@@ -84,105 +85,117 @@ class _SignupState extends State<Signup> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isMobile = screenWidth < 600;
-    final Widget signUpWigdet = Container(
-      height: isMobile ? 500.h : 500,
-      width: isMobile ? screenWidth * 0.8 : 450,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        gradient: const LinearGradient(
-          colors: [
-            Color.fromARGB(255, 204, 198, 230),
-            Colors.white,
-            Colors.white
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+    final Widget signUpWigdet = SingleChildScrollView(
+      child: Container(
+        height: isMobile ? 500.h : 500,
+        width: isMobile ? screenWidth * 0.8 : 450,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          gradient: const LinearGradient(
+            colors: [
+              Color.fromARGB(255, 204, 198, 230),
+              Colors.white,
+              Colors.white,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
         ),
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            SizedBox(height: isMobile ? 25.h : 25),
-            Container(
-              height: isMobile ? 50.h : 50,
-              width: isMobile ? 50.w : 50,
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(12)),
-              child: Icon(CupertinoIcons.globe,
-                  size: isMobile ? 40.r : 40, color: seedcolor),
-            ),
-            Text('Welcome',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: isMobile ? 25.h : 25),
+              Container(
+                height: isMobile ? 50.h : 50,
+                width: isMobile ? 50.w : 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  CupertinoIcons.globe,
+                  size: isMobile ? 40.r : 40,
+                  color: seedcolor,
+                ),
+              ),
+              Text(
+                'Welcome',
                 style: GoogleFonts.redHatText(
-                    fontSize: isMobile ? 25.sp : 25,
-                    fontWeight: FontWeight.w600)),
-            Text(
-              'Please enter your details to create',
-              style: TextStyle(fontSize: isMobile ? 14.sp : 14),
-            ),
-            SizedBox(height: isMobile ? 10.h : 10),
-            TextfieldWidget(
-              title: 'Email address',
-              subtitle: 'Enter your email',
-              controller: emailcontroller,
-              validator: validateEmail,
-            ),
-            TextfieldWidget(
-              title: 'Password',
-              subtitle: 'Enter password',
-              controller: passwordcontroller,
-              obscureText: true,
-              validator: validatePassword,
-            ),
-            SizedBox(height: isMobile ? 20.h : 20),
-            Padding(
-              padding: EdgeInsets.all(isMobile ? 8.0.r : 8),
-              child: isauthenticating
-                  ? CircularProgressIndicator(
-                      color: seedcolor,
-                    )
-                  : ElevatedButton(
-                      style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(seedcolor)),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          signup(emailcontroller.text, passwordcontroller.text);
-                        }
-                      },
-                      child: Center(
-                        child: Text(
-                          'Sign up',
-                          style: TextStyle(color: Colors.white),
+                  fontSize: isMobile ? 25.sp : 25,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'Please enter your details to create',
+                style: TextStyle(fontSize: isMobile ? 14.sp : 14),
+              ),
+              SizedBox(height: isMobile ? 10.h : 10),
+              TextfieldWidget(
+                title: 'Email address',
+                subtitle: 'Enter your email',
+                controller: emailcontroller,
+                validator: validateEmail,
+              ),
+              TextfieldWidget(
+                title: 'Password',
+                subtitle: 'Enter password',
+                controller: passwordcontroller,
+                obscureText: true,
+                validator: validatePassword,
+              ),
+              SizedBox(height: isMobile ? 20.h : 20),
+              Padding(
+                padding: EdgeInsets.all(isMobile ? 8.0.r : 8),
+                child: isauthenticating
+                    ? CircularProgressIndicator(color: seedcolor)
+                    : ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(seedcolor),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            signup(
+                              emailcontroller.text,
+                              passwordcontroller.text,
+                            );
+                          }
+                        },
+                        child: Center(
+                          child: Text(
+                            'Sign up',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Already have an account? '),
+                  GestureDetector(
+                    onTap: widget.onClick,
+                    child: Text(
+                      'Sign in',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: seedcolor,
+                      ),
                     ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Already have an account? '),
-                GestureDetector(
-                  onTap: widget.onClick,
-                  child: Text(
-                    'Sign in',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600, color: seedcolor),
                   ),
-                )
-              ],
-            ),
-            if (errormsg != '')
-              Text(
-                errormsg,
-                style: TextStyle(color: Colors.red),
-              )
-          ],
+                ],
+              ),
+              if (errormsg != '')
+                Text(errormsg, style: TextStyle(color: Colors.red)),
+            ],
+          ),
         ),
       ),
     );
 
     return isMobile
-        ? Center(child: signUpWigdet)
+        ? signUpWigdet
         : Row(
             spacing: 20,
             children: [
@@ -208,8 +221,11 @@ class _SignupState extends State<Signup> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(CupertinoIcons.globe,
-                            color: Colors.white, size: 70),
+                        Icon(
+                          CupertinoIcons.globe,
+                          color: Colors.white,
+                          size: 70,
+                        ),
                         SizedBox(height: 20),
                         Text(
                           'DevConnect',
@@ -223,7 +239,9 @@ class _SignupState extends State<Signup> {
                         Text(
                           'Connect • Collaborate • Grow',
                           style: GoogleFonts.redHatText(
-                              fontSize: 18, color: Colors.white70),
+                            fontSize: 18,
+                            color: Colors.white70,
+                          ),
                         ),
                       ],
                     ),
@@ -232,10 +250,7 @@ class _SignupState extends State<Signup> {
               ),
 
               // ------------- LOGIN CARD (same) --------------
-              Expanded(
-                flex: 2,
-                child: Center(child: signUpWigdet),
-              ),
+              Expanded(flex: 2, child: Center(child: signUpWigdet)),
             ],
           );
   }
