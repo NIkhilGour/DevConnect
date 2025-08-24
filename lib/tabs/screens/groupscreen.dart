@@ -86,6 +86,7 @@ class _GroupscreenState extends ConsumerState<Groupscreen> {
                           MaterialPageRoute(
                             builder: (context) {
                               return Chatscreen(
+                                isgroupscreen: false,
                                 isforjoin: false,
                                 userId: userId,
                                 group: group,

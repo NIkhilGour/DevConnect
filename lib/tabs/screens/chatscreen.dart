@@ -22,11 +22,15 @@ class Chatscreen extends ConsumerStatefulWidget {
     required this.group,
     required this.userId,
     required this.isforjoin,
+    required this.isgroupscreen,
+    this.onselectgroup,
   });
 
   final Group group;
   final int? userId;
   final bool isforjoin;
+  final bool isgroupscreen;
+  final VoidCallback? onselectgroup;
 
   @override
   ConsumerState<Chatscreen> createState() => _ChatscreenState();
@@ -67,7 +71,18 @@ class _ChatscreenState extends ConsumerState<Chatscreen> {
     return Scaffold(
       backgroundColor: backgroundcolor,
       appBar: AppBar(
-        automaticallyImplyLeading: context.mounted,
+        leading: IconButton(
+          onPressed: () {
+            if (ismobile) {
+              Navigator.pop(context);
+            } else {
+              widget.isgroupscreen
+                  ? widget.onselectgroup!()
+                  : Navigator.pop(context);
+            }
+          },
+          icon: Icon(ismobile ? Icons.arrow_back : Icons.close),
+        ),
         elevation: 2,
         titleSpacing: 0,
         title: Row(

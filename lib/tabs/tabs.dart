@@ -82,7 +82,7 @@ class _TabsState extends ConsumerState<Tabs> {
       data: (data) {
         return isMobile
             ? Scaffold(
-                resizeToAvoidBottomInset: true,
+                resizeToAvoidBottomInset: false,
                 backgroundColor: backgroundcolor,
                 appBar: AppBar(
                   backgroundColor: Colors.white,

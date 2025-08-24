@@ -22,8 +22,9 @@ class _WebGroupPageState extends State<WebGroupPage> {
   }
 
   void _loadUserId() async {
-    final userid =
-        await SharedPreferencesService.getInt('userId'); // Cache this
+    final userid = await SharedPreferencesService.getInt(
+      'userId',
+    ); // Cache this
     setState(() {
       userId = userid;
     });
@@ -47,14 +48,21 @@ class _WebGroupPageState extends State<WebGroupPage> {
             ? Flexible(
                 flex: 2,
                 child: Chatscreen(
-                    group: selectedgroup!, userId: userId, isforjoin: false),
+                  isgroupscreen: true,
+                  group: selectedgroup!,
+                  userId: userId,
+                  isforjoin: false,
+                  onselectgroup: () {
+                    setState(() {
+                      selectedgroup = null;
+                    });
+                  },
+                ),
               )
             : Flexible(
                 flex: 2,
-                child: Center(
-                  child: Text('Select Group To chat'),
-                ),
-              )
+                child: Center(child: Text('Select Group To chat')),
+              ),
       ],
     );
   }
