@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:devconnect/core/api_url.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 Future<Map<dynamic, dynamic>?> setUserDetails({
   required Map<String, dynamic> userProfile,
-  File? profilePictureFile,
+  dynamic profilePictureFile,
   required String token,
 }) async {
   final uri = Uri.parse('$apiurl/user/userdetails');
@@ -27,12 +28,23 @@ Future<Map<dynamic, dynamic>?> setUserDetails({
 
   // Add image if available
   if (profilePictureFile != null) {
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'profilepicture',
-        profilePictureFile.path,
-      ),
-    );
+    if (kIsWeb) {
+      print(profilePictureFile);
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'profilepicture',
+          profilePictureFile,
+          filename: userProfile['name'],
+        ),
+      );
+    } else {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'profilepicture',
+          profilePictureFile.path,
+        ),
+      );
+    }
   }
 
   final streamedResponse = await request.send();

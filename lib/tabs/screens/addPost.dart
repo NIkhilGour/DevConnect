@@ -13,9 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 class Addpost extends StatefulWidget {
-  const Addpost({
-    super.key,
-  });
+  const Addpost({super.key});
 
   @override
   State<Addpost> createState() => _AddpostState();
@@ -104,9 +102,9 @@ class _AddpostState extends State<Addpost> {
       if (!isValid) return;
 
       if (selectedSkills.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Add Skills required')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Add Skills required')));
         return;
       }
 
@@ -114,7 +112,7 @@ class _AddpostState extends State<Addpost> {
         'description': descriptioncontroller.text,
         'github': githubcontroller.text,
         'skills': selectedSkills,
-        'file': imagefile ?? videofile,
+        'file': kIsWeb ? pickedFile : imagefile ?? videofile,
       });
     }
 
@@ -129,21 +127,25 @@ class _AddpostState extends State<Addpost> {
               height: 40.h,
               width: 80.w,
               decoration: BoxDecoration(
-                  color: Color(0xFF876FE8).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12.r)),
+                color: Color(0xFF876FE8).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12.r),
+              ),
               child: GestureDetector(
                 onTap: () {
                   handlePublish();
                 },
                 child: Center(
-                    child: Text(
-                  'Publish',
-                  style:
-                      TextStyle(fontWeight: FontWeight.bold, color: seedcolor),
-                )),
+                  child: Text(
+                    'Publish',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: seedcolor,
+                    ),
+                  ),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: SizedBox(
@@ -164,8 +166,9 @@ class _AddpostState extends State<Addpost> {
                     controller: descriptioncontroller,
                     maxLines: null,
                     decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Share your thoughts...'),
+                      border: InputBorder.none,
+                      hintText: 'Share your thoughts...',
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please give description for post';
@@ -173,23 +176,23 @@ class _AddpostState extends State<Addpost> {
                       return null;
                     },
                   ),
-                  SizedBox(
-                    height: 10.h,
-                  ),
+                  SizedBox(height: 10.h),
                   Container(
                     decoration: BoxDecoration(
-                        border: Border.all(),
-                        borderRadius: BorderRadius.circular(12.r)),
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
                     child: Padding(
                       padding: EdgeInsets.only(left: 5.w),
                       child: TextFormField(
                         controller: githubcontroller,
                         maxLines: 1,
                         decoration: InputDecoration(
-                            icon: Icon(Icons.commit),
-                            hintStyle: TextStyle(fontWeight: FontWeight.w500),
-                            border: InputBorder.none,
-                            hintText: 'Github'),
+                          icon: Icon(Icons.commit),
+                          hintStyle: TextStyle(fontWeight: FontWeight.w500),
+                          border: InputBorder.none,
+                          hintText: 'Github',
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please provide github for project';
@@ -203,82 +206,77 @@ class _AddpostState extends State<Addpost> {
                     Stack(
                       children: [
                         Positioned(
-                            top: 10,
-                            right: 10,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (imagefile != null) {
-                                      pickimage();
-                                    } else {
-                                      pickvideo();
-                                    }
-                                  },
-                                  child: Container(
-                                    height: 40.h,
-                                    width: 40.w,
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFF876FE8).withOpacity(0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(20.r)),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.edit,
-                                        color: seedcolor,
-                                      ),
+                          top: 10,
+                          right: 10,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (imagefile != null) {
+                                    pickimage();
+                                  } else {
+                                    pickvideo();
+                                  }
+                                },
+                                child: Container(
+                                  height: 40.h,
+                                  width: 40.w,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF876FE8).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                  child: Center(
+                                    child: Icon(Icons.edit, color: seedcolor),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                              GestureDetector(
+                                onTap: () {
+                                  if (imagefile != null) {
+                                    imagefile = null;
+                                  } else {
+                                    videofile = null;
+                                  }
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  height: 40.h,
+                                  width: 40.w,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF876FE8).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.close_sharp,
+                                      color: seedcolor,
                                     ),
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (imagefile != null) {
-                                      imagefile = null;
-                                    } else {
-                                      videofile = null;
-                                    }
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    height: 40.h,
-                                    width: 40.w,
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFF876FE8).withOpacity(0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(20.r)),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.close_sharp,
-                                        color: seedcolor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )),
+                              ),
+                            ],
+                          ),
+                        ),
                         Padding(
-                          padding:
-                              EdgeInsets.only(left: 8.w, right: 8.w, top: 60.h),
+                          padding: EdgeInsets.only(
+                            left: 8.w,
+                            right: 8.w,
+                            top: 60.h,
+                          ),
                           child: SizedBox(
-                              height: 350,
-                              width: MediaQuery.of(context).size.width,
-                              child: imagefile != null
-                                  ? Image.file(
-                                      imagefile!,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : AspectRatio(
-                                      aspectRatio: videoPlayerController!
-                                          .value.aspectRatio,
-                                      child:
-                                          VideoPlayer(videoPlayerController!),
-                                    )),
+                            height: 350,
+                            width: MediaQuery.of(context).size.width,
+                            child: imagefile != null
+                                ? Image.file(imagefile!, fit: BoxFit.cover)
+                                : AspectRatio(
+                                    aspectRatio: videoPlayerController!
+                                        .value
+                                        .aspectRatio,
+                                    child: VideoPlayer(videoPlayerController!),
+                                  ),
+                          ),
                         ),
                       ],
                     ),
@@ -286,78 +284,76 @@ class _AddpostState extends State<Addpost> {
                     Stack(
                       children: [
                         Positioned(
-                            top: 10,
-                            right: 10,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    if (pickedFile!.extension == "mp4") {
-                                      pickFile(isImage: false);
-                                    } else {
-                                      pickFile(isImage: true);
-                                    }
-                                  },
-                                  child: Container(
-                                    height: 40.h,
-                                    width: 40.w,
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFF876FE8).withOpacity(0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(20.r)),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.edit,
-                                        color: seedcolor,
-                                      ),
+                          top: 10,
+                          right: 10,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  if (pickedFile!.extension == "mp4") {
+                                    pickFile(isImage: false);
+                                  } else {
+                                    pickFile(isImage: true);
+                                  }
+                                },
+                                child: Container(
+                                  height: 40.h,
+                                  width: 40.w,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF876FE8).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                  child: Center(
+                                    child: Icon(Icons.edit, color: seedcolor),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 5),
+                              GestureDetector(
+                                onTap: () {
+                                  if (pickedFile != null) {
+                                    pickedFile = null;
+                                    fileBytes = null;
+                                  }
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  height: 40.h,
+                                  width: 40.w,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF876FE8).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20.r),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.close_sharp,
+                                      color: seedcolor,
                                     ),
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    if (pickedFile != null) {
-                                      pickedFile = null;
-                                      fileBytes = null;
-                                    }
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    height: 40.h,
-                                    width: 40.w,
-                                    decoration: BoxDecoration(
-                                        color:
-                                            Color(0xFF876FE8).withOpacity(0.1),
-                                        borderRadius:
-                                            BorderRadius.circular(20.r)),
-                                    child: Center(
-                                      child: Icon(
-                                        Icons.close_sharp,
-                                        color: seedcolor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )),
+                              ),
+                            ],
+                          ),
+                        ),
                         Padding(
-                          padding:
-                              EdgeInsets.only(left: 8.w, right: 8.w, top: 60.h),
+                          padding: EdgeInsets.only(
+                            left: 8.w,
+                            right: 8.w,
+                            top: 60.h,
+                          ),
                           child: SizedBox(
-                              height: 350,
-                              width: MediaQuery.of(context).size.width,
-                              child: pickedFile!.extension == "mp4"
-                                  ? AspectRatio(
-                                      aspectRatio: videoPlayerController!
-                                          .value.aspectRatio,
-                                      child:
-                                          VideoPlayer(videoPlayerController!),
-                                    )
-                                  : Image.memory(fileBytes!)),
+                            height: 350,
+                            width: MediaQuery.of(context).size.width,
+                            child: pickedFile!.extension == "mp4"
+                                ? AspectRatio(
+                                    aspectRatio: videoPlayerController!
+                                        .value
+                                        .aspectRatio,
+                                    child: VideoPlayer(videoPlayerController!),
+                                  )
+                                : Image.memory(fileBytes!),
+                          ),
                         ),
                       ],
                     ),
@@ -369,7 +365,9 @@ class _AddpostState extends State<Addpost> {
                       children: List.generate(selectedSkills.length, (index) {
                         return Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 6.h),
+                            horizontal: 12.w,
+                            vertical: 6.h,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12.r),
                             color: const Color(0xFF876FE8).withOpacity(0.1),
@@ -380,7 +378,8 @@ class _AddpostState extends State<Addpost> {
                               Text(
                                 selectedSkills[index].skill!,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.w500),
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                               SizedBox(width: 8.w),
                               GestureDetector(
@@ -417,29 +416,25 @@ class _AddpostState extends State<Addpost> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   IconButton(
-                      onPressed: () {
-                        if (!kIsWeb) {
-                          pickimage();
-                        } else {
-                          pickFile(isImage: true);
-                        }
-                      },
-                      icon: Icon(
-                        Icons.image_outlined,
-                        size: 35.r,
-                      )),
+                    onPressed: () {
+                      if (!kIsWeb) {
+                        pickimage();
+                      } else {
+                        pickFile(isImage: true);
+                      }
+                    },
+                    icon: Icon(Icons.image_outlined, size: 35.r),
+                  ),
                   IconButton(
-                      onPressed: () {
-                        if (kIsWeb) {
-                          pickFile(isImage: false);
-                        } else {
-                          pickvideo();
-                        }
-                      },
-                      icon: Icon(
-                        Icons.video_collection_outlined,
-                        size: 35.r,
-                      )),
+                    onPressed: () {
+                      if (kIsWeb) {
+                        pickFile(isImage: false);
+                      } else {
+                        pickvideo();
+                      }
+                    },
+                    icon: Icon(Icons.video_collection_outlined, size: 35.r),
+                  ),
                 ],
               ),
               ElevatedButton(
@@ -448,8 +443,10 @@ class _AddpostState extends State<Addpost> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.r),
                   ),
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 40.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 40.w,
+                    vertical: 12.h,
+                  ),
                 ),
                 onPressed: () {
                   showDialog(
@@ -470,7 +467,7 @@ class _AddpostState extends State<Addpost> {
                   'Select skills',
                   style: TextStyle(fontSize: 16.sp, color: seedcolor),
                 ),
-              )
+              ),
             ],
           ),
         ),

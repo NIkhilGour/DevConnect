@@ -64,6 +64,9 @@ class _SkillsselectionState extends State<Skillsselection> {
                       fetchSkills();
                     },
                   );
+                } else if (asyncSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
                 }
 
                 final allSkills = asyncSnapshot.data!;

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:devconnect/core/api_url.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
@@ -13,7 +14,7 @@ Future<Post> publishPostApi(
   String description,
   String github,
   List<Skill> skills,
-  File? file,
+  dynamic file,
 ) async {
   final token = await JWTService.gettoken();
 
@@ -39,16 +40,30 @@ Future<Post> publishPostApi(
   );
 
   if (file != null) {
-    final mimeType = lookupMimeType(file.path);
-    request.files.add(
-      http.MultipartFile(
-        'file',
-        http.ByteStream(file.openRead()),
-        await file.length(),
-        filename: basename(file.path),
-        contentType: MediaType.parse(mimeType!),
-      ),
-    );
+    if (kIsWeb) {
+      // Web: use bytes directly
+
+      final mimeType = lookupMimeType(file.name) ?? 'application/octet-stream';
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          file.bytes,
+          filename: file.name,
+          contentType: MediaType.parse(mimeType),
+        ),
+      );
+    } else {
+      final mimeType = lookupMimeType(file.path) ?? 'application/octet-stream';
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          file.path,
+          contentType: MediaType.parse(mimeType),
+        ),
+      );
+    }
   }
 
   final response = await request.send();
